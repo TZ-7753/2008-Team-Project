@@ -2,6 +2,7 @@ package project.views;
 
 import project.model.DatabaseOperations;
 import project.util.HashedPasswordGenerator;
+import project.util.InputValidator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -117,25 +118,38 @@ public class UserAccountView extends JFrame {
                             postcodeField.getText() };
                     char[] passwordChars = passwordField.getPassword();
                     char[] confirmPasswordChars = confirmPasswordField.getPassword();
-
-                    if (passwordChars.length != 0) {
-                        if (Arrays.equals(passwordChars, confirmPasswordChars)) {
-                            String hashedPassword = HashedPasswordGenerator.hashPassword(passwordChars);
-                            DatabaseOperations databaseOperations = new DatabaseOperations();
-                            databaseOperations.updatePassword(connection, userID, hashedPassword);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Inputted passwords do not match!");
-                            validForm = false;
-                        }
+                    
+                    //form validation for empty fields and email
+                    InputValidator inputValidator = new InputValidator();
+                    if (newUserInfo[0].isEmpty() || newUserInfo[1].isEmpty() || newUserInfo[3].isEmpty()
+                            || newUserInfo[4].isEmpty() || newUserInfo[5].isEmpty() || newUserInfo[6].isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Empty Input Values!");
+                        validForm = false;
+                    } else if (!inputValidator.validate(newUserInfo[2])) {
+                        JOptionPane.showMessageDialog(null, "Invalid Email!");
+                        validForm = false;
                     }
-                    if (!Arrays.equals(userInfo, newUserInfo) || passwordChars.length != 0) {
-                        for (String data : newUserInfo) {
-                            System.out.println(data);
-                            if (data.equals("")) {
-                                JOptionPane.showMessageDialog(null, "Empty value in form!");
+
+                    //validation and update for password field
+                    if (passwordChars.length != 0) {
+                        if (!inputValidator.validatePassword(passwordChars)) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Password must be at lease 8 characters in length, contain a capital letter and contain a numeric value!");
+                            validForm = false;
+                        } else {
+                            if (Arrays.equals(passwordChars, confirmPasswordChars)) {
+                                String hashedPassword = HashedPasswordGenerator.hashPassword(passwordChars);
+                                DatabaseOperations databaseOperations = new DatabaseOperations();
+                                databaseOperations.updatePassword(connection, userID, hashedPassword);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Inputted passwords do not match!");
                                 validForm = false;
                             }
                         }
+                    }
+                    
+                    //updates rest of fields
+                    if (!Arrays.equals(userInfo, newUserInfo) || passwordChars.length != 0) {
                         if (validForm) {
                             DatabaseOperations databaseOperations = new DatabaseOperations();
                             databaseOperations.updateUserInfo(connection, userID, newUserInfo);

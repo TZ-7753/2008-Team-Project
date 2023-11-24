@@ -2,6 +2,7 @@ package project.views;
 
 import project.model.DatabaseOperations;
 import project.util.HashedPasswordGenerator;
+import project.util.InputValidator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +22,8 @@ public class CreateAccountView extends JFrame {
     private JTextField streetNameField;
     private JTextField cityNameField;
     private JTextField postcodeField;
-    public CreateAccountView (Connection connection) throws SQLException {
+
+    public CreateAccountView(Connection connection) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("Create Account Application");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,9 +101,8 @@ public class CreateAccountView extends JFrame {
 
         panel.add(new JLabel());
         panel.add(createAccountButton);
-        panel.add(new JLabel());  // Empty label for spacing
+        panel.add(new JLabel()); // Empty label for spacing
         panel.add(loginButton);
-        
 
         // Create an ActionListener for the create account button
         createAccountButton.addActionListener(new ActionListener() {
@@ -117,19 +118,37 @@ public class CreateAccountView extends JFrame {
                 String cityName = cityNameField.getText();
                 String postcode = postcodeField.getText();
 
-                if (Arrays.equals(passwordChars, confirmPasswordChars)){
-                    String hashedPassword = HashedPasswordGenerator.hashPassword(passwordChars);
-
-                    DatabaseOperations databaseOperations = new DatabaseOperations();
-                    JOptionPane.showMessageDialog(null, databaseOperations.verifyAccountCreation(connection, firstName, surname, email, hashedPassword, houseNumber, streetName, cityName, postcode));
-                    // Secure disposal of the password
-                    Arrays.fill(passwordChars, '\u0000');
-                    Arrays.fill(confirmPasswordChars, '\u0000');
-
-                } else {
-                    JOptionPane.showMessageDialog(null, "Inputted passwords do not match!");
+                Boolean validFormInput = true;
+                InputValidator inputValidator = new InputValidator();
+                if (firstName.isEmpty()||surname.isEmpty()||houseNumber.isEmpty()||streetName.isEmpty()||cityName.isEmpty()||postcode.isEmpty()){
+                    JOptionPane.showMessageDialog(null, "Empty Input Values!");
+                    validFormInput = false;
+                } else if(!inputValidator.validate(email)) {
+                    JOptionPane.showMessageDialog(null, "Invalid Email!");
+                    validFormInput = false;
+                } else if(!inputValidator.validatePassword(passwordChars)){
+                    JOptionPane.showMessageDialog(null, "Password must be at lease 8 characters in length, contain a capital letter and contain a numeric value!");
+                    validFormInput = false;
                 }
-                
+
+                if(validFormInput){
+                    if (Arrays.equals(passwordChars, confirmPasswordChars)) {
+                        String hashedPassword = HashedPasswordGenerator.hashPassword(passwordChars);
+
+                        DatabaseOperations databaseOperations = new DatabaseOperations();
+                        databaseOperations.verifyAccountCreation(connection, firstName,
+                                surname, email, hashedPassword, houseNumber, streetName, cityName, postcode);
+                        try {
+                            dispose();
+                            LoginView login = new LoginView(connection);
+                            login.setVisible(true);
+                        } catch (SQLException error) {
+                            error.printStackTrace();
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Inputted passwords do not match!");
+                    }
+                }
             }
         });
 
@@ -144,7 +163,7 @@ public class CreateAccountView extends JFrame {
                 } catch (SQLException error) {
                     error.printStackTrace();
                 }
-                
+
             }
         });
     }
