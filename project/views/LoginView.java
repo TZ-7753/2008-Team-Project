@@ -9,12 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LoginView extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
-    public LoginView (Connection connection) throws SQLException {
+
+    public LoginView(Connection connection) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("Login Application");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +47,7 @@ public class LoginView extends JFrame {
         panel.add(emailField);
         panel.add(passwordLabel);
         panel.add(passwordField);
-        panel.add(new JLabel());  // Empty label for spacing
+        panel.add(new JLabel()); // Empty label for spacing
         panel.add(loginButton);
         panel.add(new JLabel());
         panel.add(createAccountButton);
@@ -58,11 +60,25 @@ public class LoginView extends JFrame {
                 char[] passwordChars = passwordField.getPassword();
                 String hashedPassword = HashedPasswordGenerator.hashPassword(passwordChars);
 
-                DatabaseOperations databaseOperations = new DatabaseOperations();
-                // Secure disposal of the password
-                Arrays.fill(passwordChars, '\u0000');
-
-                JOptionPane.showMessageDialog(null, databaseOperations.verifyLogin(connection, email, hashedPassword));
+                if (email == "" || passwordChars.length == 0) {
+                    JOptionPane.showMessageDialog(null, "Empty values in form!");
+                } else {
+                    DatabaseOperations databaseOperations = new DatabaseOperations();
+                    // Secure disposal of the password
+                    Arrays.fill(passwordChars, '\u0000');
+                    ArrayList<String> returnString = databaseOperations.verifyLogin(connection, email, hashedPassword);
+                    if (returnString.get(0) == "success") {
+                        try {
+                            dispose();
+                            UserAccountView userAccount = new UserAccountView(connection, returnString.get(1));
+                            userAccount.setVisible(true);
+                        } catch (SQLException error) {
+                            error.printStackTrace();
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(null, returnString);
+                    }
+                }
             }
         });
 
@@ -76,7 +92,7 @@ public class LoginView extends JFrame {
                 } catch (SQLException error) {
                     error.printStackTrace();
                 }
-                
+
             }
         });
     }
