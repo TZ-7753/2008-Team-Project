@@ -60,23 +60,23 @@ public class LoginView extends JFrame {
                 char[] passwordChars = passwordField.getPassword();
                 String hashedPassword = HashedPasswordGenerator.hashPassword(passwordChars);
 
-                if (email == "" || passwordChars.length == 0) {
-                    JOptionPane.showMessageDialog(null, "Empty values in form!");
-                } else {
-                    DatabaseOperations databaseOperations = new DatabaseOperations();
-                    // Secure disposal of the password
-                    Arrays.fill(passwordChars, '\u0000');
-                    ArrayList<String> returnString = databaseOperations.verifyLogin(connection, email, hashedPassword);
-                    if (returnString.get(0) == "success") {
-                        try {
-                            dispose();
-                            UserAccountView userAccount = new UserAccountView(connection, returnString.get(1));
-                            userAccount.setVisible(true);
-                        } catch (SQLException error) {
-                            error.printStackTrace();
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, returnString);
+                DatabaseOperations databaseOperations = new DatabaseOperations();
+                // Secure disposal of the password
+                Arrays.fill(passwordChars, '\u0000');
+
+                //Catch verification response
+                String response = databaseOperations.verifyLogin(connection, email, hashedPassword);
+                JOptionPane.showMessageDialog(null, response);
+
+                //Verification Passed - close login view, open main screen
+                if (response.startsWith("UserID:")) {
+                    // Open new window
+                    try{
+                        LoginView.this.dispose();
+                        MainScreenView mainScreen = new MainScreenView(connection);
+                        mainScreen.setVisible(true);
+                    } catch (SQLException error){
+                        error.printStackTrace();
                     }
                 }
             }
