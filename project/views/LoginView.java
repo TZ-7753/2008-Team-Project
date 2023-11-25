@@ -72,7 +72,7 @@ public class LoginView extends JFrame {
                     // Open new window
                     try{
                         LoginView.this.dispose();
-                        MainScreenView mainScreen = new MainScreenView(connection);
+                        MainScreenView mainScreen = new MainScreenView(connection, response.get(1));
                         mainScreen.setVisible(true);
                     } catch (SQLException error){
                         error.printStackTrace();

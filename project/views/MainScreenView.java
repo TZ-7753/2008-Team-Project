@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class MainScreenView extends JFrame {
 
-    public MainScreenView(Connection connection) throws SQLException {
+    public MainScreenView(Connection connection, String userID) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("Home");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
