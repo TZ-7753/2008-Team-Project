@@ -62,7 +62,21 @@ public class LoginView extends JFrame {
                 // Secure disposal of the password
                 Arrays.fill(passwordChars, '\u0000');
 
-                JOptionPane.showMessageDialog(null, databaseOperations.verifyLogin(connection, email, hashedPassword));
+                //Catch verification response
+                String response = databaseOperations.verifyLogin(connection, email, hashedPassword);
+                JOptionPane.showMessageDialog(null, response);
+
+                //Verification Passed - close login view, open main screen
+                if (response.startsWith("UserID:")) {
+                    // Open new window
+                    try{
+                        LoginView.this.dispose();
+                        MainScreenView mainScreen = new MainScreenView(connection);
+                        mainScreen.setVisible(true);
+                    } catch (SQLException error){
+                        error.printStackTrace();
+                    }
+                }
             }
         });
 
