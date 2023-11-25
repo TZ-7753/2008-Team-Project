@@ -23,7 +23,7 @@ public class UserAccountView extends JFrame {
     private JTextField cityNameField;
     private JTextField postcodeField;
 
-    public UserAccountView(Connection connection, String userID) throws SQLException {
+    public UserAccountView(Connection connection, String userID, String userRole) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("View User Account");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -155,8 +155,8 @@ public class UserAccountView extends JFrame {
                             databaseOperations.updateUserInfo(connection, userID, newUserInfo);
                             try {
                                 dispose();
-                                LoginView login = new LoginView(connection);
-                                login.setVisible(true);
+                                MainScreenView mainscr = new MainScreenView(connection, userID, userRole);
+                                mainscr.setVisible(true);
                             } catch (SQLException error) {
                                 error.printStackTrace();
                             }
@@ -171,8 +171,8 @@ public class UserAccountView extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         dispose();
-                        LoginView login = new LoginView(connection);
-                        login.setVisible(true);
+                        MainScreenView mainscr = new MainScreenView(connection, userID, userRole);
+                        mainscr.setVisible(true);
                     } catch (SQLException error) {
                         error.printStackTrace();
                     }

@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class MainScreenView extends JFrame {
 
-    public MainScreenView(Connection connection, String userID) throws SQLException {
+    public MainScreenView(Connection connection, String userID, String userRole) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("Home");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -24,7 +24,7 @@ public class MainScreenView extends JFrame {
         this.add(panel);
 
         // Set a layout manager for the panel (e.g., GridLayout)
-        panel.setLayout(new GridLayout(3, 3));
+        panel.setLayout(new GridLayout(4, 3));
 
         //Create the title
         JLabel titleLabel = new JLabel("Homepage - navigation");
@@ -38,6 +38,10 @@ public class MainScreenView extends JFrame {
         JButton trackPartsButton = new JButton("Track parts");
         JButton trainSetButton = new JButton("Train Sets");
 
+        JButton accountViewButton = new JButton("Account View");
+        JButton signOutButton = new JButton("Sign Out");
+        JButton orderButton = new JButton("Orders");
+
         panel.add(new JLabel());
         panel.add(titleLabel);
         panel.add(new JLabel());
@@ -48,6 +52,10 @@ public class MainScreenView extends JFrame {
         panel.add(trackPackButton);
         panel.add(trackPartsButton);
         panel.add(trainSetButton);
+
+        panel.add(accountViewButton);
+        panel.add(orderButton);
+        panel.add(signOutButton);
 
         // Create listeners for each navigation buttons
         rollingButton.addActionListener(new ActionListener() {
@@ -90,6 +98,41 @@ public class MainScreenView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String dummyMsg = "Navigate to Track parts Page...";
                 JOptionPane.showMessageDialog(null, dummyMsg);
+            }
+        });
+        accountViewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    String dummyMsg = "Navigate to Account View Page...";
+                    JOptionPane.showMessageDialog(null, dummyMsg);
+                    MainScreenView.this.dispose();
+                    UserAccountView account = new UserAccountView(connection,userID,userRole);
+                    account.setVisible(true);
+                }catch (SQLException err){
+                    err.printStackTrace();
+                }
+            }
+        });
+        orderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String dummyMsg = "Navigate to Order Page...";
+                JOptionPane.showMessageDialog(null, dummyMsg);
+            }
+        });
+        signOutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String dummyMsg = "Signing out.";
+                    JOptionPane.showMessageDialog(null, dummyMsg);
+                    dispose();
+                    LoginView loginView = new LoginView(connection);
+                    loginView.setVisible(true);
+                } catch (SQLException error) {
+                    error.printStackTrace();
+                }
             }
         });
     }

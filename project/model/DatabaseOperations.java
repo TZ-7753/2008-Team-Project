@@ -13,7 +13,7 @@ public class DatabaseOperations {
     public ArrayList<String> verifyLogin(Connection connection, String email, String hashedPassword) {
         ArrayList<String> returnMessage = new ArrayList<String>();
         try {
-            String sqlQuery = "SELECT u.user_ID,u.password_hash FROM users u WHERE u.email=?";
+            String sqlQuery = "SELECT u.user_ID,u.password_hash,u.user_role FROM users u WHERE u.email=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, email);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -22,6 +22,7 @@ public class DatabaseOperations {
                 if (hashedPasswordDB.equals(hashedPassword)) {
                     returnMessage.add("success");
                     returnMessage.add(resultSet.getString("user_ID"));
+                    returnMessage.add(resultSet.getString("user_role"));
                 } else {
                     returnMessage.add("error");
                     returnMessage.add("Password is Incorrect!");
