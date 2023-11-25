@@ -4,6 +4,7 @@ package project;
 import project.model.DatabaseConnectionHandler;
 import project.views.LoginView;
 
+
 import javax.swing.*;
 
 public class Main {

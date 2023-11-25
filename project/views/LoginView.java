@@ -9,12 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LoginView extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
-    public LoginView (Connection connection) throws SQLException {
+
+    public LoginView(Connection connection) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("Login Application");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +47,7 @@ public class LoginView extends JFrame {
         panel.add(emailField);
         panel.add(passwordLabel);
         panel.add(passwordField);
-        panel.add(new JLabel());  // Empty label for spacing
+        panel.add(new JLabel()); // Empty label for spacing
         panel.add(loginButton);
         panel.add(new JLabel());
         panel.add(createAccountButton);
@@ -90,7 +92,7 @@ public class LoginView extends JFrame {
                 } catch (SQLException error) {
                     error.printStackTrace();
                 }
-                
+
             }
         });
     }
