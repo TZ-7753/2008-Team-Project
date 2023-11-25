@@ -65,11 +65,10 @@ public class LoginView extends JFrame {
                 Arrays.fill(passwordChars, '\u0000');
 
                 //Catch verification response
-                String response = databaseOperations.verifyLogin(connection, email, hashedPassword);
-                JOptionPane.showMessageDialog(null, response);
+                ArrayList<String> response = databaseOperations.verifyLogin(connection, email, hashedPassword);
 
                 //Verification Passed - close login view, open main screen
-                if (response.startsWith("UserID:")) {
+                if (response.get(0) == "success") {
                     // Open new window
                     try{
                         LoginView.this.dispose();
@@ -78,6 +77,8 @@ public class LoginView extends JFrame {
                     } catch (SQLException error){
                         error.printStackTrace();
                     }
+                }else{
+                    JOptionPane.showMessageDialog(null, response.get(1));
                 }
             }
         });

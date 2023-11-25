@@ -30,29 +30,30 @@ public class MainScreenView extends JFrame {
         JLabel titleLabel = new JLabel("Homepage - navigation");
 
         // Create JButton for the item types
-        JButton carriageButton = new JButton("Carriage");
+
         JButton controllerButton = new JButton("Controllers");
         JButton locomotiveButton = new JButton("Locomotives");
+        JButton rollingButton = new JButton("Rolling Stock");
         JButton trackPackButton = new JButton("Track packs");
+        JButton trackPartsButton = new JButton("Track parts");
         JButton trainSetButton = new JButton("Train Sets");
-        JButton wagonButton = new JButton("Wagons");
 
         panel.add(new JLabel());
         panel.add(titleLabel);
         panel.add(new JLabel());
 
-        panel.add(carriageButton);
         panel.add(controllerButton);
         panel.add(locomotiveButton);
+        panel.add(rollingButton);
         panel.add(trackPackButton);
+        panel.add(trackPartsButton);
         panel.add(trainSetButton);
-        panel.add(wagonButton);
 
         // Create listeners for each navigation buttons
-        carriageButton.addActionListener(new ActionListener() {
+        rollingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Carriage Page...";
+                String dummyMsg = "Navigate to Rolling Stocks Page...";
                 JOptionPane.showMessageDialog(null, dummyMsg);
             }
         });
@@ -84,10 +85,10 @@ public class MainScreenView extends JFrame {
                 JOptionPane.showMessageDialog(null, dummyMsg);
             }
         });
-        wagonButton.addActionListener(new ActionListener() {
+        trackPartsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Wagon Page...";
+                String dummyMsg = "Navigate to Track parts Page...";
                 JOptionPane.showMessageDialog(null, dummyMsg);
             }
         });
