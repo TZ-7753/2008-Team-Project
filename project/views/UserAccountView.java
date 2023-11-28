@@ -22,19 +22,23 @@ public class UserAccountView extends JFrame {
     private JTextField streetNameField;
     private JTextField cityNameField;
     private JTextField postcodeField;
+    private JTextField cardNoField;
+    private JTextField cardNameField;
+    private JTextField cardExpiryDateField;
+    private JTextField cardSecurityCodeField;
 
     public UserAccountView(Connection connection, String userID, String userRole) throws SQLException {
         // Create the JFrame in the constructor
         this.setTitle("View User Account");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(400, 400);
+        this.setSize(400, 600);
 
         // Create a JPanel to hold the components
         JPanel panel = new JPanel();
         this.add(panel);
 
         // Set a layout manager for the panel (e.g., GridLayout)
-        panel.setLayout(new GridLayout(13, 2));
+        panel.setLayout(new GridLayout(19, 2));
 
         DatabaseOperations databaseOperations = new DatabaseOperations();
         String[] userInfo = databaseOperations.getUserInfo(connection, userID);
@@ -49,8 +53,13 @@ public class UserAccountView extends JFrame {
             JLabel homeAddressLabel = new JLabel("Home Address:");
             JLabel houseNumberLabel = new JLabel("House Number:");
             JLabel streetNameLabel = new JLabel("Street Name:");
-            JLabel cityNameLabel = new JLabel("City Name");
+            JLabel cityNameLabel = new JLabel("City Name:");
             JLabel postcodeLabel = new JLabel("Postcode:");
+            JLabel bankDetailsLabel = new JLabel("Bank Details:");
+            JLabel cardNoLabel = new JLabel("Card Number:");
+            JLabel cardNameLabel = new JLabel("Card Name:");
+            JLabel cardExpiryDateLabel = new JLabel("Expiry Date (MM/YYYY):");
+            JLabel cardSecurityCodeLabel = new JLabel("Security Code:");
 
             // Create JTextFields
             firstNameField = new JTextField(userInfo[0]);
@@ -62,6 +71,10 @@ public class UserAccountView extends JFrame {
             streetNameField = new JTextField(userInfo[4]);
             cityNameField = new JTextField(userInfo[5]);
             postcodeField = new JTextField(userInfo[6]);
+            cardNoField = new JTextField(16);
+            cardNameField = new JTextField(40);
+            cardExpiryDateField = new JTextField(20);
+            cardSecurityCodeField = new JTextField(3);
 
             // Create a JButton for the login action
             JButton updateDetailsButton = new JButton("Update Details");
@@ -104,6 +117,24 @@ public class UserAccountView extends JFrame {
             panel.add(postcodeField);
 
             panel.add(new JLabel());
+            panel.add(new JLabel());
+
+            panel.add(bankDetailsLabel);
+            panel.add(new JLabel());
+
+            panel.add(cardNoLabel);
+            panel.add(cardNoField);
+
+            panel.add(cardNameLabel);
+            panel.add(cardNameField);
+
+            panel.add(cardExpiryDateLabel);
+            panel.add(cardExpiryDateField);
+
+            panel.add(cardSecurityCodeLabel);
+            panel.add(cardSecurityCodeField);
+
+            panel.add(new JLabel());
             panel.add(updateDetailsButton);
             panel.add(new JLabel()); // Empty label for spacing
             panel.add(backButton);
@@ -116,21 +147,23 @@ public class UserAccountView extends JFrame {
                     String[] newUserInfo = { firstNameField.getText(), surnameField.getText(), emailField.getText(),
                             houseNumberField.getText(), streetNameField.getText(), cityNameField.getText(),
                             postcodeField.getText() };
+                    String[] newBankDetails = { (cardNoField.getText()).replaceAll("\\s+", ""), cardNameField.getText(),
+                            cardExpiryDateField.getText(), cardSecurityCodeField.getText() };
                     char[] passwordChars = passwordField.getPassword();
                     char[] confirmPasswordChars = confirmPasswordField.getPassword();
-                    
-                    //form validation for empty fields and email
+
+                    // form validation for empty fields and email
                     InputValidator inputValidator = new InputValidator();
                     if (newUserInfo[0].isEmpty() || newUserInfo[1].isEmpty() || newUserInfo[3].isEmpty()
                             || newUserInfo[4].isEmpty() || newUserInfo[5].isEmpty() || newUserInfo[6].isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Empty Input Values!");
                         validForm = false;
-                    } else if (!inputValidator.validate(newUserInfo[2])) {
+                    } else if (!inputValidator.validateEmail(newUserInfo[2])) {
                         JOptionPane.showMessageDialog(null, "Invalid Email!");
                         validForm = false;
                     }
 
-                    //validation and update for password field
+                    // validation and update for password field
                     if (passwordChars.length != 0) {
                         if (!inputValidator.validatePassword(passwordChars)) {
                             JOptionPane.showMessageDialog(null,
@@ -147,19 +180,46 @@ public class UserAccountView extends JFrame {
                             }
                         }
                     }
-                    
-                    //updates rest of fields
-                    if (!Arrays.equals(userInfo, newUserInfo) || passwordChars.length != 0) {
-                        if (validForm) {
-                            DatabaseOperations databaseOperations = new DatabaseOperations();
-                            databaseOperations.updateUserInfo(connection, userID, newUserInfo);
-                            try {
-                                dispose();
-                                MainScreenView mainscr = new MainScreenView(connection, userID, userRole);
-                                mainscr.setVisible(true);
-                            } catch (SQLException error) {
-                                error.printStackTrace();
+
+                    if (!(newBankDetails[0].length() == 0 && newBankDetails[1].length() == 0
+                            && newBankDetails[2].length() == 0 && newBankDetails[3].length() == 0)) {
+                        if (!(newBankDetails[0].length() == 0 || newBankDetails[1].length() == 0
+                                || newBankDetails[2].length() == 0 || newBankDetails[3].length() == 0)) {
+                            if (inputValidator.validateCardNumber(newBankDetails[0])) {
+                                if (inputValidator.validateDate(newBankDetails[2])) {
+                                    if (inputValidator.validateSecurityCode(newBankDetails[3])) {
+                                        databaseOperations.updateBankDetails(connection, userID, newBankDetails);
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Invalid Security Code!");
+                                        validForm = false;
+                                    }
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Invalid Expiry Date!");
+                                    validForm = false;
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Invalid Card Number");
+                                validForm = false;
                             }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "New Bank Details are incomplete!");
+                            validForm = false;
+                        }
+                    }
+
+                    // updates rest of fields
+                    if (!Arrays.equals(userInfo, newUserInfo)) {
+                        DatabaseOperations databaseOperations = new DatabaseOperations();
+                        databaseOperations.updateUserInfo(connection, userID, newUserInfo);
+                    }
+
+                    if (validForm) {
+                        try {
+                            dispose();
+                            MainScreenView mainscr = new MainScreenView(connection, userID, userRole);
+                            mainscr.setVisible(true);
+                        } catch (SQLException error) {
+                            error.printStackTrace();
                         }
                     }
                 }

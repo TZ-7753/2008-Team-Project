@@ -1,15 +1,11 @@
 package project.views;
 
-import project.model.DatabaseOperations;
-import project.util.HashedPasswordGenerator;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 public class MainScreenView extends JFrame {
 
@@ -104,8 +100,6 @@ public class MainScreenView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
-                    String dummyMsg = "Navigate to Account View Page...";
-                    JOptionPane.showMessageDialog(null, dummyMsg);
                     MainScreenView.this.dispose();
                     UserAccountView account = new UserAccountView(connection,userID,userRole);
                     account.setVisible(true);

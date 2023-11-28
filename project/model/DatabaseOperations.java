@@ -123,12 +123,12 @@ public class DatabaseOperations {
             ResultSet resultSet = preparedStatement.executeQuery();
             if(!resultSet.next()){
                 String insertSQL = "INSERT INTO user_address VALUES (?,?,?,?)";
-                preparedStatement = connection.prepareStatement(insertSQL);
-                preparedStatement.setString(1, userInfo[3]);
-                preparedStatement.setString(2, userInfo[4]);
-                preparedStatement.setString(3, userInfo[5]);
-                preparedStatement.setString(4, userInfo[6]);
-                int rowsEffected = preparedStatement.executeUpdate();
+                PreparedStatement preparedStatement1 = connection.prepareStatement(insertSQL);
+                preparedStatement1.setString(1, userInfo[3]);
+                preparedStatement1.setString(2, userInfo[4]);
+                preparedStatement1.setString(3, userInfo[5]);
+                preparedStatement1.setString(4, userInfo[6]);
+                int rowsEffected = preparedStatement1.executeUpdate();
                 System.out.println("address rows effected = " + rowsEffected);
             } else {
                 String sqlUpdate = "UPDATE user_address a SET a.road_name=?, a.city_name=? " + 
@@ -156,5 +156,58 @@ public class DatabaseOperations {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String userHasBankDetails(Connection connection, String userID){
+        try{
+            String sqlQuery = "SELECT * FROM user_has_bank_details u WHERE u.user_ID=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, userID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString("card_ID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void updateBankDetails(Connection connection, String userID, String [] bankInfo){
+        if(userHasBankDetails(connection, userID) != null){
+            try{
+                String sqlUpdate = "UPDATE bank_details b SET b.card_NO=?, b.bank_card_name=?, b.expiry_date=?, b.security_code=? " + 
+                                    "WHERE b.card_ID =?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdate);
+                preparedStatement.setString(1, bankInfo[0]);
+                preparedStatement.setString(2, bankInfo[1]);
+                preparedStatement.setString(3, bankInfo[2]);
+                preparedStatement.setString(4, bankInfo[3]);
+                preparedStatement.setString(5, userHasBankDetails(connection, userID));
+                preparedStatement.executeUpdate();
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        } else {
+            try{
+                String cardID = UniqueUserIDGenerator.generateUniqueUserID();
+                String insertSQL = "INSERT INTO bank_details VALUES (?,?,?,?,?)";
+                PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
+                preparedStatement.setString(1, cardID);
+                preparedStatement.setString(2, bankInfo[0]);
+                preparedStatement.setString(3, bankInfo[1]);
+                preparedStatement.setString(4, bankInfo[2]);
+                preparedStatement.setString(5, bankInfo[3]);
+                preparedStatement.executeUpdate();
+
+                insertSQL = "INSERT INTO user_has_bank_details VALUES (?,?)";
+                preparedStatement = connection.prepareStatement(insertSQL);
+                preparedStatement.setString(1, cardID);
+                preparedStatement.setString(2, userID);
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

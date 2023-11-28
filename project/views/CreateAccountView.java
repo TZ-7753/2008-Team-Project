@@ -123,7 +123,7 @@ public class CreateAccountView extends JFrame {
                 if (firstName.isEmpty()||surname.isEmpty()||houseNumber.isEmpty()||streetName.isEmpty()||cityName.isEmpty()||postcode.isEmpty()){
                     JOptionPane.showMessageDialog(null, "Empty Input Values!");
                     validFormInput = false;
-                } else if(!inputValidator.validate(email)) {
+                } else if(!inputValidator.validateEmail(email)) {
                     JOptionPane.showMessageDialog(null, "Invalid Email!");
                     validFormInput = false;
                 } else if(!inputValidator.validatePassword(passwordChars)){
