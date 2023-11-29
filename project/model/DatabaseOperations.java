@@ -216,10 +216,23 @@ public class DatabaseOperations {
     }
 
     public void deleteOrder(int orderNumber, Connection connection) throws SQLException {
-        String query = "DELETE FROM orders WHERE order_number = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, orderNumber);
-            pstmt.executeUpdate();
+        try {
+            String deleteSQL = "Delete FROM order_line WHERE order_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+            preparedStatement.setInt(1, orderNumber);
+            int rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            String deleteSQL = "DELETE FROM orders WHERE order_number =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+            preparedStatement.setInt(1, orderNumber);
+            int rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -496,6 +509,14 @@ public class DatabaseOperations {
                     throw e;
                 }
                 try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
                     PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
                     preparedStatement.setString(1, productCode);
@@ -535,6 +556,14 @@ public class DatabaseOperations {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     throw e;
+                }
+                try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
@@ -578,6 +607,14 @@ public class DatabaseOperations {
                     throw e;
                 }
                 try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
                     PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
                     preparedStatement.setString(1, productCode);
@@ -607,6 +644,14 @@ public class DatabaseOperations {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     throw e;
+                }
+                try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
@@ -660,6 +705,14 @@ public class DatabaseOperations {
                     throw e;
                 }
                 try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
                     PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
                     preparedStatement.setString(1, productCode);
@@ -689,6 +742,14 @@ public class DatabaseOperations {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     throw e;
+                }
+                try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
