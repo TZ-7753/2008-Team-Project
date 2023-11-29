@@ -50,6 +50,7 @@ public class StaffRegistryView extends JFrame {
         JTable table = new JTable(model);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
+        /*
         // Set up the TableRowSorter on the table
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
@@ -60,7 +61,7 @@ public class StaffRegistryView extends JFrame {
         sortKeys.add(new RowSorter.SortKey(3, SortOrder.ASCENDING)); // Role column
         sorter.setSortKeys(sortKeys);
         sorter.setSortable(0, false);   //Make the column of ID unsortable
-
+        */
 
         // Render registration buttons
         table.getColumn(" ").setCellRenderer(new ButtonRenderer());
@@ -143,13 +144,13 @@ public class StaffRegistryView extends JFrame {
                         String role = "Staff";
                         DatabaseOperations databaseOperations = new DatabaseOperations();
                         databaseOperations.roleRegister(connection, table.getModel().getValueAt(selectedRow, 0).toString(), role);
-                        JOptionPane.showMessageDialog(button, name + " is now registered as Staff.");
+                        JOptionPane.showMessageDialog(button, name + " is now promoted to Staff.");
                     }else if(Objects.equals(table.getModel().getValueAt(selectedRow, 3).toString(), "Staff")){
                         String name = table.getModel().getValueAt(selectedRow, 1).toString() + " "+ table.getModel().getValueAt(selectedRow, 2).toString();
                         String role = "Customer";
                         DatabaseOperations databaseOperations = new DatabaseOperations();
                         databaseOperations.roleRegister(connection, table.getModel().getValueAt(selectedRow, 0).toString(), role);
-                        JOptionPane.showMessageDialog(button, name + " is now registered as Customer.");
+                        JOptionPane.showMessageDialog(button, name + " is now demoted to Customer.");
                     }
                     parent.reloadWindow();
                     isPushed = true;
@@ -160,7 +161,14 @@ public class StaffRegistryView extends JFrame {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             this.table = table;
-            button.setText("Register");
+            int selectedRow = table.getEditingRow();
+            String role = (String) table.getModel().getValueAt(row, 3);
+
+            if (role.equals("Customer")) {
+                button.setText("Promote");
+            } else {
+                button.setText("Demote");
+            }
             return button;
         }
 
@@ -178,7 +186,14 @@ public class StaffRegistryView extends JFrame {
         }
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            this.setText("Register");
+            int selectedRow = table.getEditingRow();
+            String role = (String) table.getModel().getValueAt(row, 3);
+
+            if (role.equals("Customer")) {
+                this.setText("Promote");
+            } else {
+                this.setText("Demote");
+            }
             return this;
         }
     }
