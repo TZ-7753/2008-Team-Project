@@ -25,8 +25,20 @@ public class MainScreenView extends JFrame {
         //Create the title
         JLabel titleLabel = new JLabel("Homepage - navigation");
 
-        // Create JButton for the item types
+        //Create Nav bar
+        JMenu navigationBar = new JMenu("Quick functions");
+        JMenuItem staffRegistryItem = new JMenuItem("Staff Registry (Only for managers)");
+        JMenuItem staffViewItem = new JMenuItem("Staff View (Only for staff)");
+        JMenuItem mainScreenItem = new JMenuItem("Main Screen");
+        navigationBar.add(staffRegistryItem);
+        navigationBar.addSeparator();
+        navigationBar.add(staffViewItem);
 
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(navigationBar);
+        setJMenuBar(menuBar);
+
+        // Create JButton for the item types
         JButton controllerButton = new JButton("Controllers");
         JButton locomotiveButton = new JButton("Locomotives");
         JButton rollingButton = new JButton("Rolling Stock");
@@ -111,13 +123,8 @@ public class MainScreenView extends JFrame {
         orderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
-                    String dummyMsg = "Navigate to Order Page...";
-                    JOptionPane.showMessageDialog(null, dummyMsg);
-                    MainScreenView.this.dispose();
-                    OrdersView ordersView = new OrdersView(connection, userID, userRole);
-                    ordersView.setVisible(true);
-                
+                String dummyMsg = "Navigate to Order Page...";
+                JOptionPane.showMessageDialog(null, dummyMsg);
             }
         });
         signOutButton.addActionListener(new ActionListener() {
@@ -131,6 +138,41 @@ public class MainScreenView extends JFrame {
                     loginView.setVisible(true);
                 } catch (SQLException error) {
                     error.printStackTrace();
+                }
+            }
+        });
+
+        //Navbar Items
+        staffRegistryItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    MainScreenView.this.dispose();
+                    StaffRegistryView staffRegistryView = new StaffRegistryView(connection,userID,userRole);
+                    staffRegistryView.setVisible(true);
+                }catch (SQLException err){
+                    err.printStackTrace();
+                }
+            }
+        });
+
+        staffViewItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String dummyMsg = "Navigate to Staff View...";
+                JOptionPane.showMessageDialog(null, dummyMsg);
+            }
+        });
+
+        mainScreenItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    MainScreenView.this.dispose();
+                    MainScreenView mainScreenView = new MainScreenView(connection,userID,userRole);
+                    mainScreenView.setVisible(true);
+                }catch (SQLException err){
+                    err.printStackTrace();
                 }
             }
         });
