@@ -131,7 +131,7 @@ public class DatabaseOperations {
                 int rowsEffected = preparedStatement1.executeUpdate();
                 System.out.println("address rows effected = " + rowsEffected);
             } else {
-                String sqlUpdate = "UPDATE user_address a SET a.road_name=?, a.city_name=? " + 
+                String sqlUpdate = "UPDATE user_address a SET a.road_name=?, a.city_name=? " +
                                     "WHERE a.house_number=? AND a.postcode=?";
                 preparedStatement = connection.prepareStatement(sqlUpdate);
                 preparedStatement.setString(1, userInfo[4]);
@@ -141,7 +141,7 @@ public class DatabaseOperations {
                 int rowsEffected = preparedStatement.executeUpdate();
                 System.out.println("address rows effected = " + rowsEffected);
             }
-            String sqlUpdate = "UPDATE users u SET u.first_name=?, u.last_name=?, u.email=?, u.house_number=?, u.postcode=? " + 
+            String sqlUpdate = "UPDATE users u SET u.first_name=?, u.last_name=?, u.email=?, u.house_number=?, u.postcode=? " +
                                     "WHERE u.user_ID=?";
             preparedStatement = connection.prepareStatement(sqlUpdate);
             preparedStatement.setString(1, userInfo[0]);
@@ -157,7 +157,6 @@ public class DatabaseOperations {
         }
         return null;
     }
-
     public String userHasBankDetails(Connection connection, String userID){
         try{
             String sqlQuery = "SELECT * FROM user_has_bank_details u WHERE u.user_ID=?";
@@ -176,7 +175,7 @@ public class DatabaseOperations {
     public void updateBankDetails(Connection connection, String userID, String [] bankInfo){
         if(userHasBankDetails(connection, userID) != null){
             try{
-                String sqlUpdate = "UPDATE bank_details b SET b.card_NO=?, b.bank_card_name=?, b.expiry_date=?, b.security_code=? " + 
+                String sqlUpdate = "UPDATE bank_details b SET b.card_NO=?, b.bank_card_name=?, b.expiry_date=?, b.security_code=? " +
                                     "WHERE b.card_ID =?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdate);
                 preparedStatement.setString(1, bankInfo[0]);
@@ -208,6 +207,39 @@ public class DatabaseOperations {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static ArrayList<String[]> filterUsers(Connection connection){
+        ArrayList<String[]> filteredData = new ArrayList<>();
+        try{
+            String sqlQuery = "SELECT u.user_ID, u.first_name, u.last_name, u.user_role FROM users u WHERE u.user_role != 'Manager'";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                String[] data = new String[4];
+                data[0] = resultSet.getString("user_ID");
+                data[1] = resultSet.getString("first_name");
+                data[2] = resultSet.getString("last_name");
+                data[3] = resultSet.getString("user_role");
+                filteredData.add(data);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return filteredData;
+    }
+
+    public void roleRegister(Connection connection, String userID, String role){
+        try{
+            //String sqlQuery = "SELECT u.user_ID, u.first_name, u.last_name FROM users u WHERE u.user_role = 'Customer'";
+            String sqlUpdate = "UPDATE users u SET u.user_role=? WHERE u.user_ID = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlUpdate);
+            preparedStatement.setString(1, role);
+            preparedStatement.setString(2, userID);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
