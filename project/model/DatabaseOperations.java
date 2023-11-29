@@ -210,4 +210,66 @@ public class DatabaseOperations {
             }
         }
     }
+
+    public void deleteOrder(int orderNumber, Connection connection) throws SQLException {
+        String query = "DELETE FROM orders WHERE order_number = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, orderNumber);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public ResultSet getOrdersByStatusAndUserId(String status, String userId, Connection connection) throws SQLException {
+        String query = "SELECT * FROM orders WHERE order_status = ? AND customer_ID = ?";
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = connection.prepareStatement(query);
+            pstmt.setString(1, status);
+            pstmt.setString(2, userId);
+            return pstmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            return null;
+        }
+    }
+    
+
+    public ResultSet getOrderLinesByOrderNumber(int orderNumber, Connection connection) throws SQLException {
+        String query = "SELECT * FROM order_line WHERE order_number = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, orderNumber);
+            return pstmt.executeQuery();
+        }
+    }
+
+    public void deleteOrderLine(int orderNumber, int orderLineNumber, Connection connection) throws SQLException {
+        String query = "DELETE FROM order_line WHERE order_number = ? AND order_line_number = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, orderNumber);
+            pstmt.setInt(2, orderLineNumber);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public void updateProductNum(int orderNumber, int orderLineNumber, int productNum, Connection connection) throws SQLException {
+        String query = "UPDATE order_line SET product_num = ? WHERE order_number = ? AND order_line_number = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, productNum);
+            pstmt.setInt(2, orderNumber);
+            pstmt.setInt(3, orderLineNumber);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public void updateOrderStatus(int orderNumber, String status, Connection connection) throws SQLException {
+        String query = "UPDATE orders SET order_status = ? WHERE order_number = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, status);
+            pstmt.setInt(2, orderNumber);
+            pstmt.executeUpdate();
+        }
+    }
 }
