@@ -1,5 +1,7 @@
 package project.views;
 
+import project.views.customerproductsearch.CustomerProductSearchWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -25,14 +27,63 @@ public class MainScreenView extends JFrame {
         //Create the title
         JLabel titleLabel = new JLabel("Homepage - navigation");
 
-        //Create Nav bar
-        JMenu navigationBar = new JMenu("Quick functions");
-        JMenuItem staffRegistryItem = new JMenuItem("Staff Registry (Only for managers)");
-        JMenuItem staffViewItem = new JMenuItem("Staff View (Only for staff)");
-        JMenuItem mainScreenItem = new JMenuItem("Main Screen");
-        navigationBar.add(staffRegistryItem);
-        navigationBar.addSeparator();
-        navigationBar.add(staffViewItem);
+        /**
+         * Creating Navigation menu. ---------------------------------------------------------------------------------
+         */
+        JMenu navigationBar = new JMenu("Menu");
+
+        JMenuItem dv = new JMenuItem("Main Screen");
+        //navigationBar.add(dv);
+        dv.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MainScreenView.this.dispose();
+                try{
+                    MainScreenView.this.dispose();
+                    MainScreenView mainScreenView = new MainScreenView(connection,userID,userRole);
+                    mainScreenView.setVisible(true);
+                }catch (SQLException err){
+                    err.printStackTrace();
+                }
+            }
+        });
+
+        if (userRole.equals("Manager") || userRole.equals("Staff")) {
+            JMenuItem sv = new JMenuItem("Staff View");
+            //navigationBar.addSeparator();
+            navigationBar.add(sv);
+            sv.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    MainScreenView.this.dispose();
+                    StaffViewWindow sfw = new StaffViewWindow(connection, userID, userRole);
+                    sfw.setVisible(true);
+                }
+            });
+
+        }
+
+        if (userRole.equals("Manager")) {
+            JMenuItem sr = new JMenuItem("Staff Registry");
+            navigationBar.addSeparator();
+            navigationBar.add(sr);
+            sr.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                    try{
+                        MainScreenView.this.dispose();
+                        StaffRegistryView staffRegistryView = new StaffRegistryView(connection,userID,userRole);
+                        staffRegistryView.setVisible(true);
+                    } catch (SQLException err){
+                        err.printStackTrace();
+                    }
+                }
+            });
+        }
+        /**
+         * --------------------------------------------------------------------------------------------------------
+         */
 
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(navigationBar);
@@ -69,43 +120,43 @@ public class MainScreenView extends JFrame {
         rollingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Rolling Stocks Page...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
+                dispose();
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("rolling stock",connection,userID,userRole);
             }
         });
         controllerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Controller Page...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
+                dispose();
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("controller",connection,userID,userRole);
             }
         });
         locomotiveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Locomotive Page...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
+                dispose();
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("locomotive",connection,userID,userRole);
             }
         });
         trackPackButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Track Page...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
+                dispose();
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("track pack",connection,userID,userRole);
             }
         });
         trainSetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Train Set Page...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
+                dispose();
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("train set",connection,userID,userRole);
             }
         });
         trackPartsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Track parts Page...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
+                dispose();
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("train set",connection,userID,userRole);
             }
         });
         accountViewButton.addActionListener(new ActionListener() {
@@ -142,39 +193,5 @@ public class MainScreenView extends JFrame {
             }
         });
 
-        //Navbar Items
-        staffRegistryItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try{
-                    MainScreenView.this.dispose();
-                    StaffRegistryView staffRegistryView = new StaffRegistryView(connection,userID,userRole);
-                    staffRegistryView.setVisible(true);
-                }catch (SQLException err){
-                    err.printStackTrace();
-                }
-            }
-        });
-
-        staffViewItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Staff View...";
-                JOptionPane.showMessageDialog(null, dummyMsg);
-            }
-        });
-
-        mainScreenItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try{
-                    MainScreenView.this.dispose();
-                    MainScreenView mainScreenView = new MainScreenView(connection,userID,userRole);
-                    mainScreenView.setVisible(true);
-                }catch (SQLException err){
-                    err.printStackTrace();
-                }
-            }
-        });
     }
 }

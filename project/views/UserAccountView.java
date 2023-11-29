@@ -29,6 +29,60 @@ public class UserAccountView extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400, 600);
 
+        JMenu navigationBar = new JMenu("Menu");
+
+        JMenuItem dv = new JMenuItem("Main Screen");
+        navigationBar.add(dv);
+        dv.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                try {
+                    MainScreenView msv = new MainScreenView(connection, userID, userRole);
+                    msv.setVisible(true);
+                } catch (SQLException err) {
+                    err.printStackTrace();
+                }
+            }
+        });
+
+        if (userRole.equals("Manager") || userRole.equals("Staff")) {
+            JMenuItem sv = new JMenuItem("Staff View");
+            navigationBar.addSeparator();
+            navigationBar.add(sv);
+            sv.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                    StaffViewWindow sfw = new StaffViewWindow(connection, userID, userRole);
+                }
+            });
+
+        }
+
+        if (userRole.equals("Manager")) {
+            JMenuItem sr = new JMenuItem("Staff Registry");
+            navigationBar.addSeparator();
+            navigationBar.add(sr);
+            sr.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                    try {
+                        StaffRegistryView srv = new StaffRegistryView(connection, userID, userRole);
+                        srv.setVisible(true);
+                    } catch (SQLException err) {
+                        err.printStackTrace();
+                    }
+                }
+            });
+        }
+
+
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(navigationBar);
+        setJMenuBar(menuBar);
+
         // Create a JPanel to hold the components
         JPanel panel = new JPanel();
         this.add(panel);
