@@ -161,6 +161,7 @@ public class DatabaseOperations {
         }
         return null;
     }
+    
     public String userHasBankDetails(Connection connection, String userID){
         try{
             String sqlQuery = "SELECT * FROM user_has_bank_details u WHERE u.user_ID=?";

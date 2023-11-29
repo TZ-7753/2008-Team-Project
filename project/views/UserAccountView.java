@@ -22,10 +22,6 @@ public class UserAccountView extends JFrame {
     private JTextField streetNameField;
     private JTextField cityNameField;
     private JTextField postcodeField;
-    private JTextField cardNoField;
-    private JTextField cardNameField;
-    private JTextField cardExpiryDateField;
-    private JTextField cardSecurityCodeField;
 
     public UserAccountView(Connection connection, String userID, String userRole) throws SQLException {
         // Create the JFrame in the constructor
@@ -38,7 +34,7 @@ public class UserAccountView extends JFrame {
         this.add(panel);
 
         // Set a layout manager for the panel (e.g., GridLayout)
-        panel.setLayout(new GridLayout(19, 2));
+        panel.setLayout(new GridLayout(14, 2));
 
         DatabaseOperations databaseOperations = new DatabaseOperations();
         String[] userInfo = databaseOperations.getUserInfo(connection, userID);
@@ -55,11 +51,6 @@ public class UserAccountView extends JFrame {
             JLabel streetNameLabel = new JLabel("Street Name:");
             JLabel cityNameLabel = new JLabel("City Name:");
             JLabel postcodeLabel = new JLabel("Postcode:");
-            JLabel bankDetailsLabel = new JLabel("Bank Details:");
-            JLabel cardNoLabel = new JLabel("Card Number:");
-            JLabel cardNameLabel = new JLabel("Card Name:");
-            JLabel cardExpiryDateLabel = new JLabel("Expiry Date (MM/YYYY):");
-            JLabel cardSecurityCodeLabel = new JLabel("Security Code:");
 
             // Create JTextFields
             firstNameField = new JTextField(userInfo[0]);
@@ -71,16 +62,14 @@ public class UserAccountView extends JFrame {
             streetNameField = new JTextField(userInfo[4]);
             cityNameField = new JTextField(userInfo[5]);
             postcodeField = new JTextField(userInfo[6]);
-            cardNoField = new JTextField(16);
-            cardNameField = new JTextField(40);
-            cardExpiryDateField = new JTextField(20);
-            cardSecurityCodeField = new JTextField(3);
 
             // Create a JButton for the login action
             JButton updateDetailsButton = new JButton("Update Details");
 
             // Create a JButton for the create account action
             JButton backButton = new JButton("Go Back");
+
+            JButton addBankDetails = new JButton("Add New Bank Details");
 
             // Add components to the panel
             panel.add(firstNameLabel);
@@ -117,25 +106,9 @@ public class UserAccountView extends JFrame {
             panel.add(postcodeField);
 
             panel.add(new JLabel());
-            panel.add(new JLabel());
-
-            panel.add(bankDetailsLabel);
-            panel.add(new JLabel());
-
-            panel.add(cardNoLabel);
-            panel.add(cardNoField);
-
-            panel.add(cardNameLabel);
-            panel.add(cardNameField);
-
-            panel.add(cardExpiryDateLabel);
-            panel.add(cardExpiryDateField);
-
-            panel.add(cardSecurityCodeLabel);
-            panel.add(cardSecurityCodeField);
-
-            panel.add(new JLabel());
             panel.add(updateDetailsButton);
+            panel.add(new JLabel());
+            panel.add(addBankDetails);
             panel.add(new JLabel()); // Empty label for spacing
             panel.add(backButton);
 
@@ -147,8 +120,6 @@ public class UserAccountView extends JFrame {
                     String[] newUserInfo = { firstNameField.getText(), surnameField.getText(), emailField.getText(),
                             houseNumberField.getText(), streetNameField.getText(), cityNameField.getText(),
                             postcodeField.getText() };
-                    String[] newBankDetails = { (cardNoField.getText()).replaceAll("\\s+", ""), cardNameField.getText(),
-                            cardExpiryDateField.getText(), cardSecurityCodeField.getText() };
                     char[] passwordChars = passwordField.getPassword();
                     char[] confirmPasswordChars = confirmPasswordField.getPassword();
 
@@ -181,32 +152,6 @@ public class UserAccountView extends JFrame {
                         }
                     }
 
-                    if (!(newBankDetails[0].length() == 0 && newBankDetails[1].length() == 0
-                            && newBankDetails[2].length() == 0 && newBankDetails[3].length() == 0)) {
-                        if (!(newBankDetails[0].length() == 0 || newBankDetails[1].length() == 0
-                                || newBankDetails[2].length() == 0 || newBankDetails[3].length() == 0)) {
-                            if (inputValidator.validateCardNumber(newBankDetails[0])) {
-                                if (inputValidator.validateDate(newBankDetails[2])) {
-                                    if (inputValidator.validateSecurityCode(newBankDetails[3])) {
-                                        databaseOperations.updateBankDetails(connection, userID, newBankDetails);
-                                    } else {
-                                        JOptionPane.showMessageDialog(null, "Invalid Security Code!");
-                                        validForm = false;
-                                    }
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Invalid Expiry Date!");
-                                    validForm = false;
-                                }
-                            } else {
-                                JOptionPane.showMessageDialog(null, "Invalid Card Number");
-                                validForm = false;
-                            }
-                        } else {
-                            JOptionPane.showMessageDialog(null, "New Bank Details are incomplete!");
-                            validForm = false;
-                        }
-                    }
-
                     // updates rest of fields
                     if (!Arrays.equals(userInfo, newUserInfo)) {
                         DatabaseOperations databaseOperations = new DatabaseOperations();
@@ -221,6 +166,19 @@ public class UserAccountView extends JFrame {
                         } catch (SQLException error) {
                             error.printStackTrace();
                         }
+                    }
+                }
+            });
+
+            addBankDetails.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e){
+                    try{
+                        dispose();
+                        AddBankDetailsView addBankDetails = new AddBankDetailsView(connection, userID, userRole);
+                        addBankDetails.setVisible(true);
+                    } catch (SQLException error) {
+                        error.printStackTrace();
                     }
                 }
             });
