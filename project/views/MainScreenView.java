@@ -123,7 +123,7 @@ public class MainScreenView extends JFrame {
         orderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dummyMsg = "Navigate to Orders Page...";
+                String dummyMsg = "Navigate to Order Page...";
                 JOptionPane.showMessageDialog(null, dummyMsg);
             }
         });
