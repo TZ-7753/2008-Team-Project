@@ -1047,7 +1047,7 @@ public class DatabaseOperations {
         }
     }
 
-    public List<String> retriveOrderDetails(Connection connection, int orderNum) throws SQLException {
+    public List<String> retrieveOrderDetails(Connection connection, int orderNum) throws SQLException {
         List<String> orderDetails = new ArrayList<String>();
         try {
             String selectSQL = "SELECT order_number, customer_ID, order_date, totalCost FROM orders WHERE order_number=?";
