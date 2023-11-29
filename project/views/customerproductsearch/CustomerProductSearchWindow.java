@@ -41,6 +41,8 @@ public class CustomerProductSearchWindow extends JFrame{
         connection = con;
         category = cat;
 
+        this.setTitle("All items of " + cat);
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screenSize = toolkit.getScreenSize();
         setSize(screenSize.width/2, screenSize.height/2);
@@ -90,11 +92,11 @@ public class CustomerProductSearchWindow extends JFrame{
             sr.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    dispose();
-                    try {
-                        StaffRegistryView srv = new StaffRegistryView(connection, userID, userRole);
-                        srv.setVisible(true);
-                    } catch (SQLException err) {
+                    try{
+                        dispose();
+                        StaffRegistryView staffRegistryView = new StaffRegistryView(connection,userID,userRole);
+                        staffRegistryView.setVisible(true);
+                    } catch (SQLException err){
                         err.printStackTrace();
                     }
                 }

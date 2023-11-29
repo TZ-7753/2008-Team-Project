@@ -180,6 +180,5 @@ public class SalesView extends JFrame {
         this.dispose();
         StaffViewWindow staffView = new StaffViewWindow(connection, userId, userRole);
         staffView.setVisible(true);
-
     }
 }

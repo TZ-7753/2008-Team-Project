@@ -27,6 +27,63 @@ public class StaffRegistryView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 500);
 
+        /**
+         * Creating Navigation menu. ---------------------------------------------------------------------------------
+         */
+        JMenu navigationBar = new JMenu("Menu");
+
+        JMenuItem dv = new JMenuItem("Main Screen");
+        navigationBar.add(dv);
+        dv.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    dispose();
+                    MainScreenView mainScreenView = new MainScreenView(connection,userID,userRole);
+                    mainScreenView.setVisible(true);
+                }catch (SQLException err){
+                    err.printStackTrace();
+                }
+            }
+        });
+
+        if (userRole.equals("Manager") || userRole.equals("Staff")) {
+            JMenuItem sv = new JMenuItem("Staff View");
+            navigationBar.addSeparator();
+            navigationBar.add(sv);
+            sv.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                    StaffViewWindow sfw = new StaffViewWindow(connection, userID, userRole);
+                    sfw.setVisible(true);
+                }
+            });
+
+        }
+
+        if (userRole.equals("Manager")) {
+            JMenuItem sr = new JMenuItem("Staff Registry");
+            navigationBar.addSeparator();
+            navigationBar.add(sr);
+            sr.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                    try{
+                        dispose();
+                        StaffRegistryView staffRegistryView = new StaffRegistryView(connection,userID,userRole);
+                        staffRegistryView.setVisible(true);
+                    }catch (SQLException err){
+                        err.printStackTrace();
+                    }
+                }
+            });
+        }
+        /**
+         * --------------------------------------------------------------------------------------------------------
+         */
+
         // Define column names for Jtable
         String[] columns = {"ID", "First Name", "Last Name","Role"," "};
 

@@ -28,13 +28,11 @@ public class CustomerProductDetailsWindow extends JFrame{
 
     private ProductDetailsPanel productDetailsPanel;
     private AddToOrderPanel addToOrderPanel;
-    private String customer_id;
 
     public CustomerProductDetailsWindow(String pC, Connection con, String category, String userID, String userRole) {
         productCode = pC;
         connection = con;
 
-        customer_id = "2753e5f1-241e-421b-94f7-63a90a52787b";
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screenSize = toolkit.getScreenSize();
