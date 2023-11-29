@@ -1047,6 +1047,77 @@ public class DatabaseOperations {
         }
     }
 
+    public List<String> retriveOrderDetails(Connection connection, int orderNum) throws SQLException {
+        List<String> orderDetails = new ArrayList<String>();
+        try {
+            String selectSQL = "SELECT order_number, customer_ID, order_date, totalCost FROM orders WHERE order_number=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setInt(1, orderNum);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                orderDetails.add(resultSet.getString("order_number"));
+                orderDetails.add(resultSet.getString("customer_id"));
+                orderDetails.add(String.valueOf(resultSet.getDate("order_date")));
+                orderDetails.add(String.valueOf(resultSet.getBigDecimal("totalCost")));
+
+                try {
+                    selectSQL = "SELECT * FROM users WHERE user_id=?";
+                    preparedStatement = connection.prepareStatement(selectSQL);
+                    preparedStatement.setString(1, orderDetails.get(1));
+                    resultSet = preparedStatement.executeQuery();
+
+                    if (resultSet.next()) {
+                        orderDetails.add(resultSet.getString("first_name"));
+                        orderDetails.add(resultSet.getString("last_name"));
+                        orderDetails.add(resultSet.getString("email"));
+                        orderDetails.add(resultSet.getString("house_number"));
+                        orderDetails.add(resultSet.getString("postcode"));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+                try {
+                    selectSQL = "SELECT * FROM user_address WHERE postcode=? AND house_number=?";
+                    preparedStatement = connection.prepareStatement(selectSQL);
+                    preparedStatement.setString(1, orderDetails.get(8));
+                    preparedStatement.setString(2, orderDetails.get(7));
+                    resultSet = preparedStatement.executeQuery();
+
+                    if (resultSet.next()) {
+                        orderDetails.add(resultSet.getString("road_name"));
+                        orderDetails.add(resultSet.getString("city_name"));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+                try {
+                    selectSQL = "SELECT * FROM order_line WHERE order_number=?";
+                    preparedStatement = connection.prepareStatement(selectSQL);
+                    preparedStatement.setInt(1 ,Integer.parseInt(orderDetails.get(0)));
+                    resultSet = preparedStatement.executeQuery();
+
+                    while (resultSet.next()) {
+                        orderDetails.add(String.valueOf(resultSet.getInt("order_line_number")));
+                        orderDetails.add(resultSet.getString("product_code"));
+                        orderDetails.add(String.valueOf(resultSet.getInt("product_num")));
+                        orderDetails.add(String.valueOf(resultSet.getBigDecimal("line_cost")));
+                    }
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return orderDetails;
+    }
+
     public List<String> retrieveOrderQueue(Connection connection) throws SQLException {
         List<String> orderDetails = new ArrayList<String>();
         try {
