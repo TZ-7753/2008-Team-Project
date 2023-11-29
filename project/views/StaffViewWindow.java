@@ -59,15 +59,20 @@ public class StaffViewWindow extends JFrame{
             }
         });
 
-        JMenu navigationBar = new JMenu("Nav");
+        JMenu navigationBar = new JMenu("Menu");
 
-        JMenuItem dv = new JMenuItem("Default View");
+        JMenuItem dv = new JMenuItem("Main Screen");
         navigationBar.add(dv);
         dv.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-
+                try {
+                    MainScreenView msv = new MainScreenView(connection, userID, userRole);
+                    msv.setVisible(true);
+                } catch (SQLException err) {
+                    err.printStackTrace();
+                }
             }
         });
 
@@ -93,6 +98,12 @@ public class StaffViewWindow extends JFrame{
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dispose();
+                    try {
+                        StaffRegistryView srv = new StaffRegistryView(connection, userID, userRole);
+                        srv.setVisible(true);
+                    } catch (SQLException err) {
+                        err.printStackTrace();
+                    }
                 }
             });
         }
@@ -111,7 +122,7 @@ public class StaffViewWindow extends JFrame{
         DatabaseConnectionHandler databaseConnectionHandler = new DatabaseConnectionHandler();
         try {
             databaseConnectionHandler.openConnection();
-            StaffViewWindow npr = new StaffViewWindow(databaseConnectionHandler.getConnection(), "werwer", "Manager");
+            StaffViewWindow npr = new StaffViewWindow(databaseConnectionHandler.getConnection(), "71368249-8571-442d-ad01-1723829da082", "Manager");
 
         }catch (Throwable t) {
             databaseConnectionHandler.closeConnection();

@@ -1,6 +1,8 @@
 package project.views.inventory;
 
 import project.model.DatabaseOperations;
+import project.views.MainScreenView;
+import project.views.StaffRegistryView;
 import project.views.StaffViewWindow;
 import project.views.inventory.EditProductDetailsEntriesPanel;
 import project.views.inventory.EditProductDetailsLabelsPanel;
@@ -72,15 +74,20 @@ public class EditProductDetailsWindow extends JFrame implements ActionListener{
 
 
 
-        JMenu navigationBar = new JMenu("Nav");
+        JMenu navigationBar = new JMenu("Menu");
 
-        JMenuItem dv = new JMenuItem("Default View");
+        JMenuItem dv = new JMenuItem("Main Screen");
         navigationBar.add(dv);
         dv.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-
+                try {
+                    MainScreenView msv = new MainScreenView(connection, userID, userRole);
+                    msv.setVisible(true);
+                } catch (SQLException err) {
+                    err.printStackTrace();
+                }
             }
         });
 
@@ -106,6 +113,12 @@ public class EditProductDetailsWindow extends JFrame implements ActionListener{
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dispose();
+                    try {
+                        StaffRegistryView srv = new StaffRegistryView(connection, userID, userRole);
+                        srv.setVisible(true);
+                    } catch (SQLException err) {
+                        err.printStackTrace();
+                    }
                 }
             });
         }

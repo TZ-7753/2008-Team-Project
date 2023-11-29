@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 
 import project.model.DatabaseConnectionHandler;
 import project.model.DatabaseOperations;
+import project.views.MainScreenView;
+import project.views.StaffRegistryView;
 import project.views.StaffViewWindow;
 
 import javax.swing.*;
@@ -65,15 +67,20 @@ public class InventoryProductSearchWindow extends JFrame implements ActionListen
         inventorySearchResults = new InventoryProductSearchResultsPanel(itemSelected, connection, this);
         contentPane.add(inventorySearchResults, BorderLayout.CENTER);
 
-        JMenu navigationBar = new JMenu("Nav");
+        JMenu navigationBar = new JMenu("Menu");
 
-        JMenuItem dv = new JMenuItem("Default View");
+        JMenuItem dv = new JMenuItem("Main Screen");
         navigationBar.add(dv);
         dv.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-
+                try {
+                    MainScreenView msv = new MainScreenView(connection, userID, userRole);
+                    msv.setVisible(true);
+                } catch (SQLException err) {
+                    err.printStackTrace();
+                }
             }
         });
 
@@ -99,6 +106,12 @@ public class InventoryProductSearchWindow extends JFrame implements ActionListen
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dispose();
+                    try {
+                        StaffRegistryView srv = new StaffRegistryView(connection, userID, userRole);
+                        srv.setVisible(true);
+                    } catch (SQLException err) {
+                        err.printStackTrace();
+                    }
                 }
             });
         }

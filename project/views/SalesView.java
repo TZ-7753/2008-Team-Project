@@ -178,11 +178,8 @@ public class SalesView extends JFrame {
 
     private void goToStaffView(Connection connection, String userId, String userRole) {
         this.dispose();
-        try {
-            StaffViewWindow staffView = new StaffViewWindow(connection, userId, userRole);
-            staffView.setVisible(true);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        StaffViewWindow staffView = new StaffViewWindow(connection, userId, userRole);
+        staffView.setVisible(true);
+
     }
 }
