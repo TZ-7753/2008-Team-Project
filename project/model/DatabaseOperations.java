@@ -161,6 +161,7 @@ public class DatabaseOperations {
         }
         return null;
     }
+
     public String userHasBankDetails(Connection connection, String userID){
         try{
             String sqlQuery = "SELECT * FROM user_has_bank_details u WHERE u.user_ID=?";
@@ -1047,6 +1048,8 @@ public class DatabaseOperations {
         }
     }
 
+
+
     public List<String> retriveOrderDetails(Connection connection, int orderNum) throws SQLException {
         List<String> orderDetails = new ArrayList<String>();
         try {
@@ -1116,6 +1119,23 @@ public class DatabaseOperations {
         }
 
         return orderDetails;
+    }
+
+    public String retrieveCustomerQueue(Connection connection) throws SQLException {
+        String userID = null;
+        try {
+            String selectSQL = "SELECT customer_ID FROM orders WHERE order_status = ? ORDER BY order_date ASC LIMIT 1";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setString(1, "Confirmed");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                userID = resultSet.getString("customer_ID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return userID;
     }
 
     public List<String> retrieveOrderQueue(Connection connection) throws SQLException {
