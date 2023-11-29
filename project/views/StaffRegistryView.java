@@ -137,7 +137,8 @@ public class StaffRegistryView extends JFrame {
         staffViewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Action
+                dispose();
+                StaffViewWindow staffViewWindow = new StaffViewWindow(connection, userID, userRole);
             }
         });
 
