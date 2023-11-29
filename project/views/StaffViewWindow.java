@@ -39,9 +39,10 @@ public class StaffViewWindow extends JFrame{
 
         JButton queue = new JButton("Queue");
         JButton inventory = new JButton("Inventory");
+        JButton sales = new JButton("Sales");
         contentPane.add(queue);
         contentPane.add(inventory);
-        contentPane.add(new JButton("Sales"));
+        contentPane.add(sales);
 
         queue.addActionListener(new ActionListener() {
             @Override
@@ -56,6 +57,15 @@ public class StaffViewWindow extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 dispose();
                 InventoryWindow iw = new InventoryWindow(connection, userID, userRole);
+            }
+        });
+
+        sales.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                SalesView sv = new SalesView(connection, userID, userRole);
+                sv.setVisible(true);
             }
         });
 
