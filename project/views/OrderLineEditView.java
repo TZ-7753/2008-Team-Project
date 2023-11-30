@@ -87,21 +87,28 @@ public class OrderLineEditView extends JFrame {
     private void saveChanges() {
         DefaultTableModel model = (DefaultTableModel) orderLinesTable.getModel();
         int rowCount = model.getRowCount();
-
+    
         for (int i = 0; i < rowCount; i++) {
             int orderLineNumber = Integer.parseInt(model.getValueAt(i, 0).toString());
-            int newQuantity = Integer.parseInt(model.getValueAt(i, 2).toString());
-
+            String quantityStr = model.getValueAt(i, 2).toString();
+    
             try {
+                int newQuantity = Integer.parseInt(quantityStr);
+    
                 dbOps.updateProductNum(orderNumber, orderLineNumber, newQuantity, connection);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid quantity entered. Please enter a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
             } catch (SQLException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error updating order line.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
         }
         loadOrderLines();
         ovw.displayOrders("Pending", connection);
     }
+    
 
     private void deleteSelectedOrderLine() {
         int selectedRow = orderLinesTable.getSelectedRow();
