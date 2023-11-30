@@ -41,7 +41,7 @@ public class OrdersView extends JFrame {
         // JFrame settings
         this.setTitle("Orders");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(1000, 600);
+        this.setSize(1400, 600);
 
         // Initialize DatabaseOperations
         dbOps = new DatabaseOperations();
