@@ -25,7 +25,7 @@ public class CustomerProductSearchEntriesPanel extends JPanel {
     public CustomerProductSearchEntriesPanel(List<String> productCodes, List<String> productNames) {
         setLayout(new GridLayout(0,1));
         for (int i = 0; i < productCodes.size(); i++) {
-            add(new JTextField("Code:" + productCodes.get(i) + "; Product Name:" + productNames.get(i)));
+            add(new JTextField("Code:" + productCodes.get(i) + ";      Product Name:" + productNames.get(i)));
         }
     }
 }

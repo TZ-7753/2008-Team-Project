@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.util.ArrayList;
+import com.mysql.cj.protocol.a.SqlDateValueEncoder;
 import java.util.Date;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -31,6 +32,7 @@ public class OrdersView extends JFrame {
     private JButton homeButton;
     private String currentUserId;
     private String currentUserRole;
+    private Container contentPane = getContentPane();
 
     public OrdersView(Connection connection, String userId, String userRole) {
         this.currentUserId = userId;
@@ -120,7 +122,7 @@ public class OrdersView extends JFrame {
 
         payButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                processPayment(connection);
+                processPayment(connection, userId, userRole);
             }
         });
 
@@ -132,14 +134,14 @@ public class OrdersView extends JFrame {
         });
     }
 
-    //methods
+    // methods
 
-    private void displayOrders(String status, Connection connection) {
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
+    public void displayOrders(String status, Connection connection) {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-    try {
-        rs = dbOps.getOrdersByStatusAndUserId(status, this.currentUserId, connection);
+        try {
+            rs = dbOps.getOrdersByStatusAndUserId(status, this.currentUserId, connection);
 
         String[] columnNames = { "Order Number", "Customer ID", "Order Status", "Order Date", "Total Cost"," "};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
@@ -156,19 +158,24 @@ public class OrdersView extends JFrame {
         ordersTable.getColumn(" ").setCellRenderer(new OrdersView.ButtonRenderer());
         ordersTable.getColumn(" ").setCellEditor(new OrdersView.ButtonEditor(new JCheckBox(), connection));
 
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        try {
-            if (rs != null) rs.close();
-            if (pstmt != null) pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (pstmt != null)
+                    pstmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+        boolean isPending = "Pending".equals(status);
+        deleteButton.setEnabled(isPending);
+        editButton.setEnabled(isPending);
+        deleteOrderLineButton.setEnabled(isPending);
+        payButton.setEnabled(isPending);
     }
-}
-
 
     private void deleteSelectedOrders(Connection connection) {
         int[] selectedRows = ordersTable.getSelectedRows();
@@ -204,64 +211,65 @@ public class OrdersView extends JFrame {
         }
 
         int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
-        displayOrderLines(orderNumber, connection);
+        OrderLineEditView orderLineEditView = new OrderLineEditView(connection, orderNumber, this.dbOps, this);
+        orderLineEditView.setVisible(true);
+
     }
 
     private void displayOrderLines(int orderNumber, Connection connection) {
         try {
             ResultSet rs = dbOps.getOrderLinesByOrderNumber(orderNumber, connection);
-    
-            String[] columnNames = {"Order Line Number", "Product Code", "Product Num", "Line Cost"};
+
+            String[] columnNames = { "Order Line Number", "Product Code", "Product Num", "Line Cost" };
             DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return column == 2;
                 }
             };
-    
+
             while (rs.next()) {
                 int orderLineNumber = rs.getInt("order_line_number");
                 String productCode = rs.getString("product_code");
                 int productNum = rs.getInt("product_num");
                 BigDecimal lineCost = rs.getBigDecimal("line_cost");
-    
-                model.addRow(new Object[]{orderLineNumber, productCode, productNum, lineCost});
+
+                model.addRow(new Object[] { orderLineNumber, productCode, productNum, lineCost });
             }
-    
+
             ordersTable.setModel(model);
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-        private void deleteSelectedOrderLine(Connection connection) {
-            int selectedRow = ordersTable.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "No order line selected!");
-                return;
-            }
-        
-            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete selected order line?");
-            if (confirm != JOptionPane.YES_OPTION) {
-                return;
-            }
-        
-            try {
-                int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
-                int orderLineNumber = (int) ordersTable.getValueAt(selectedRow, 1);
-                dbOps.deleteOrderLine(orderNumber, orderLineNumber, connection);
-        
-                displayOrderLines(orderNumber, connection);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error occurred while deleting order line.");
-            }
-        
-        
+    private void deleteSelectedOrderLine(Connection connection) {
+        int selectedRow = ordersTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No order line selected!");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete selected order line?");
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
+            int orderLineNumber = (int) ordersTable.getValueAt(selectedRow, 1);
+            dbOps.deleteOrderLine(orderNumber, orderLineNumber, connection);
+
+            displayOrderLines(orderNumber, connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error occurred while deleting order line.");
+        }
+
     }
 
-    private void processPayment(Connection connection) {
+    private void processPayment(Connection connection, String userID, String userRole) {
         int selectedRow = ordersTable.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "No order selected!");
@@ -269,17 +277,31 @@ public class OrdersView extends JFrame {
         }
 
         int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
-        try {
-            String cardId = dbOps.userHasBankDetails(connection, currentUserId);
-            if (cardId != null) {
-                dbOps.updateOrderStatus(orderNumber, "Confirmed", connection);
-                JOptionPane.showMessageDialog(this, "Payment successful!");
-            } else {
-                JOptionPane.showMessageDialog(this, "No bank details found!");
+
+        String cardId = dbOps.userHasBankDetails(connection, currentUserId);
+        if (cardId == null) {
+            try {
+                AddBankDetailsView addBankDetailsView = new AddBankDetailsView(connection, userID, userRole);
+                addBankDetailsView.setVisible(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error occurred during payment process.");
+            cardId = dbOps.userHasBankDetails(connection, currentUserId);
+        } else {
+            try {
+                if (cardId != null) {
+                    dbOps.updateOrderStatus(orderNumber, "Confirmed", connection);
+                    JOptionPane.showMessageDialog(this, "Payment Success");
+                    dispose();
+                    OrdersView ordersView = new OrdersView(connection, userID, userRole);
+                    ordersView.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "No bank details found!");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error occurred during payment process.");
+            }
         }
     }
 

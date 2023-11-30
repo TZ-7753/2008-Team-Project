@@ -94,7 +94,7 @@ public class MainScreenView extends JFrame {
         JButton locomotiveButton = new JButton("Locomotives");
         JButton rollingButton = new JButton("Rolling Stock");
         JButton trackPackButton = new JButton("Track packs");
-        JButton trackPartsButton = new JButton("Track parts");
+        JButton trackPartsButton = new JButton("Track pieces");
         JButton trainSetButton = new JButton("Train Sets");
 
         JButton accountViewButton = new JButton("Account View");
@@ -156,7 +156,7 @@ public class MainScreenView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("train set",connection,userID,userRole);
+                CustomerProductSearchWindow rollingView = new CustomerProductSearchWindow("track piece",connection,userID,userRole);
             }
         });
         accountViewButton.addActionListener(new ActionListener() {
@@ -179,6 +179,7 @@ public class MainScreenView extends JFrame {
                 ordersView.setVisible(true);
             }
         });
+        
         signOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

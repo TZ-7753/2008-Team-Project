@@ -44,6 +44,7 @@ public class DecisionPanel extends JPanel implements ActionListener{
 
         DatabaseOperations databaseOperations = new DatabaseOperations();
         boolean available = false;
+        String id = null;
 
         try {
             if (databaseOperations.inStock(connection)) {
@@ -51,6 +52,16 @@ public class DecisionPanel extends JPanel implements ActionListener{
             } else { available = false;}
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        try {
+            id = (databaseOperations.retrieveCustomerQueue(connection));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (id != null) {
+            if (databaseOperations.userHasBankDetails(connection, id ) == null) {
+                available = false;
+            }
         }
 
         confirm.setEnabled(available);
