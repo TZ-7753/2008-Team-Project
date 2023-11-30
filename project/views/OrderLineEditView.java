@@ -119,6 +119,7 @@ public class OrderLineEditView extends JFrame {
             JOptionPane.showMessageDialog(this, "Error deleting order line.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         loadOrderLines();
+        ovw.displayOrders("Pending", connection);
     }
 
     private void exitEdit() {
