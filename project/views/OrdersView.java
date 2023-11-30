@@ -63,7 +63,7 @@ public class OrdersView extends JFrame {
         deleteOrderLineButton = new JButton("Delete Selected Order Line");
         editButton = new JButton("Edit Selected Order");
         deleteButton = new JButton("Delete Selected Order");
-        payButton = new JButton("Pay");
+        payButton = new JButton("Confirm");
         homeButton = new JButton("Home");
         deleteOrderLineButton.setEnabled(false);
         editButton.setEnabled(false);
@@ -291,7 +291,7 @@ public class OrdersView extends JFrame {
             try {
                 if (cardId != null) {
                     dbOps.updateOrderStatus(orderNumber, "Confirmed", connection);
-                    JOptionPane.showMessageDialog(this, "Payment Success");
+                    JOptionPane.showMessageDialog(this, "Confirmation Successful");
                     dispose();
                     OrdersView ordersView = new OrdersView(connection, userID, userRole);
                     ordersView.setVisible(true);
@@ -300,7 +300,7 @@ public class OrdersView extends JFrame {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error occurred during payment process.");
+                JOptionPane.showMessageDialog(this, "Error occurred during confirmation process.");
             }
         }
     }
