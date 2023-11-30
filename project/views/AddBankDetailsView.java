@@ -97,15 +97,16 @@ public class AddBankDetailsView extends JFrame {
                 }
 
                 if (validForm) {
-                    try {
-                        dispose();
-                        UserAccountView mainscr = new UserAccountView(connection, userID, userRole);
-                        mainscr.setVisible(true);
-                    } catch (SQLException error) {
-                        error.printStackTrace();
-                    }
+                    dispose();
                 }
             }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
         });
 
     }

@@ -157,7 +157,7 @@ public class DatabaseOperations {
         }
         return null;
     }
-    
+
     public String userHasBankDetails(Connection connection, String userID){
         try{
             String sqlQuery = "SELECT * FROM user_has_bank_details u WHERE u.user_ID=?";
@@ -212,10 +212,23 @@ public class DatabaseOperations {
     }
 
     public void deleteOrder(int orderNumber, Connection connection) throws SQLException {
-        String query = "DELETE FROM orders WHERE order_number = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, orderNumber);
-            pstmt.executeUpdate();
+        try {
+            String deleteSQL = "Delete FROM order_line WHERE order_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+            preparedStatement.setInt(1, orderNumber);
+            int rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            String deleteSQL = "DELETE FROM orders WHERE order_number =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+            preparedStatement.setInt(1, orderNumber);
+            int rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -245,16 +258,86 @@ public class DatabaseOperations {
         }
     }
 
-    public void deleteOrderLine(int orderNumber, int orderLineNumber, Connection connection) throws SQLException {
-        String query = "DELETE FROM order_line WHERE order_number = ? AND order_line_number = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, orderNumber);
-            pstmt.setInt(2, orderLineNumber);
-            pstmt.executeUpdate();
+
+    public void changeOrderCost(int orderNumber, int orderLineNumber, boolean increase, Connection connection) throws SQLException {
+        BigDecimal cost = new BigDecimal(0);
+        try {
+            String selectSQL = "SELECT line_cost FROM order_line WHERE order_number = ? AND order_line_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setInt(1, orderNumber);
+            preparedStatement.setInt(2, orderLineNumber);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                cost = resultSet.getBigDecimal("line_cost");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            String updateSQL = "UPDATE orders SET totalCost = totalCost + ? WHERE order_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(updateSQL);
+            preparedStatement.setInt(2, orderNumber);
+            if (increase) {
+                preparedStatement.setBigDecimal(1, cost);
+            } else {
+                preparedStatement.setBigDecimal(1, cost.negate());
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
+    public void deleteOrderIfEmpty(int orderNumber, Connection connection) {
+        boolean bad = false;
+        try {
+            String selectSQL = "SELECT * from order_line WHERE order_number =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setInt(1, orderNumber);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!(resultSet.next())) {
+                bad = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (bad) {
+            try {
+                String deleteSQL = "DELETE FROM orders WHERE order_number=?";
+                PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                preparedStatement.setInt(1, orderNumber);
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void deleteOrderLine(int orderNumber, int orderLineNumber, Connection connection) throws SQLException {
+        try {
+            DatabaseOperations databaseOperations = new DatabaseOperations();
+            databaseOperations.changeOrderCost(orderNumber, orderLineNumber, false, connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            String query = "DELETE FROM order_line WHERE order_number = ? AND order_line_number = ?";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, orderNumber);
+            pstmt.setInt(2, orderLineNumber);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        DatabaseOperations databaseOperations = new DatabaseOperations();
+        databaseOperations.deleteOrderIfEmpty(orderNumber, connection);
+    }
+
     public void updateProductNum(int orderNumber, int orderLineNumber, int productNum, Connection connection) throws SQLException {
+        BigDecimal current_cost = new BigDecimal(0);
         String query = "UPDATE order_line SET product_num = ? WHERE order_number = ? AND order_line_number = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, productNum);
@@ -492,6 +575,14 @@ public class DatabaseOperations {
                     throw e;
                 }
                 try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
                     PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
                     preparedStatement.setString(1, productCode);
@@ -531,6 +622,14 @@ public class DatabaseOperations {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     throw e;
+                }
+                try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
@@ -574,6 +673,14 @@ public class DatabaseOperations {
                     throw e;
                 }
                 try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
                     PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
                     preparedStatement.setString(1, productCode);
@@ -603,6 +710,14 @@ public class DatabaseOperations {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     throw e;
+                }
+                try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
@@ -656,6 +771,14 @@ public class DatabaseOperations {
                     throw e;
                 }
                 try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
                     PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
                     preparedStatement.setString(1, productCode);
@@ -685,6 +808,14 @@ public class DatabaseOperations {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     throw e;
+                }
+                try {
+                    String deleteSQL = "DELETE FROM order_line WHERE product_code=?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                    preparedStatement.setString(1, productCode);
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 try {
                     String deleteSQL = "DELETE FROM product WHERE product_code=?";
@@ -1044,6 +1175,8 @@ public class DatabaseOperations {
         }
     }
 
+
+
     public List<String> retriveOrderDetails(Connection connection, int orderNum) throws SQLException {
         List<String> orderDetails = new ArrayList<String>();
         try {
@@ -1113,6 +1246,23 @@ public class DatabaseOperations {
         }
 
         return orderDetails;
+    }
+
+    public String retrieveCustomerQueue(Connection connection) throws SQLException {
+        String userID = null;
+        try {
+            String selectSQL = "SELECT customer_ID FROM orders WHERE order_status = ? ORDER BY order_date ASC LIMIT 1";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setString(1, "Confirmed");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                userID = resultSet.getString("customer_ID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return userID;
     }
 
     public List<String> retrieveOrderQueue(Connection connection) throws SQLException {

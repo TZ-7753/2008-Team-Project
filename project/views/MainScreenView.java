@@ -174,15 +174,9 @@ public class MainScreenView extends JFrame {
         orderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    String dummyMsg = "Navigate to Order View...";
-                    JOptionPane.showMessageDialog(null, dummyMsg);
-                    dispose();
-                    OrdersView orderview = new OrdersView(connection, userID, userRole);
-                    orderview.setVisible(true);
-                } catch (Exception ex) { // Catch other potential exceptions
-                    ex.printStackTrace();
-                }
+                MainScreenView.this.dispose();
+                OrdersView ov = new OrdersView(connection, userID, userRole);
+                ov.setVisible(true);
             }
         });
         
