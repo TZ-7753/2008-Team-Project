@@ -262,16 +262,86 @@ public class DatabaseOperations {
         }
     }
 
-    public void deleteOrderLine(int orderNumber, int orderLineNumber, Connection connection) throws SQLException {
-        String query = "DELETE FROM order_line WHERE order_number = ? AND order_line_number = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, orderNumber);
-            pstmt.setInt(2, orderLineNumber);
-            pstmt.executeUpdate();
+
+    public void changeOrderCost(int orderNumber, int orderLineNumber, boolean increase, Connection connection) throws SQLException {
+        BigDecimal cost = new BigDecimal(0);
+        try {
+            String selectSQL = "SELECT line_cost FROM order_line WHERE order_number = ? AND order_line_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setInt(1, orderNumber);
+            preparedStatement.setInt(2, orderLineNumber);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                cost = resultSet.getBigDecimal("line_cost");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        try {
+            String updateSQL = "UPDATE orders SET totalCost = totalCost + ? WHERE order_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(updateSQL);
+            preparedStatement.setInt(2, orderNumber);
+            if (increase) {
+                preparedStatement.setBigDecimal(1, cost);
+            } else {
+                preparedStatement.setBigDecimal(1, cost.negate());
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
+    public void deleteOrderIfEmpty(int orderNumber, Connection connection) {
+        boolean bad = false;
+        try {
+            String selectSQL = "SELECT * from order_line WHERE order_number =?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setInt(1, orderNumber);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!(resultSet.next())) {
+                bad = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (bad) {
+            try {
+                String deleteSQL = "DELETE FROM orders WHERE order_number=?";
+                PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
+                preparedStatement.setInt(1, orderNumber);
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void deleteOrderLine(int orderNumber, int orderLineNumber, Connection connection) throws SQLException {
+        try {
+            DatabaseOperations databaseOperations = new DatabaseOperations();
+            databaseOperations.changeOrderCost(orderNumber, orderLineNumber, false, connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            String query = "DELETE FROM order_line WHERE order_number = ? AND order_line_number = ?";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, orderNumber);
+            pstmt.setInt(2, orderLineNumber);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        DatabaseOperations databaseOperations = new DatabaseOperations();
+        databaseOperations.deleteOrderIfEmpty(orderNumber, connection);
+    }
+
     public void updateProductNum(int orderNumber, int orderLineNumber, int productNum, Connection connection) throws SQLException {
+        BigDecimal current_cost = new BigDecimal(0);
         String query = "UPDATE order_line SET product_num = ? WHERE order_number = ? AND order_line_number = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, productNum);
