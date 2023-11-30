@@ -3,11 +3,12 @@ package project.views;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.awt.BorderLayout;
 
+import project.model.DatabaseOperations;
+import java.awt.BorderLayout;
 
 public class OrderLineEditView extends JFrame {
     private JTable orderLinesTable;
@@ -15,14 +16,18 @@ public class OrderLineEditView extends JFrame {
     private JButton deleteButton;
     private int orderNumber;
     private Connection connection;
+    private DatabaseOperations dbOps;
+    private JButton exitButton;
 
-    public OrderLineEditView(Connection connection, int orderNumber) {
+    public OrderLineEditView(Connection connection, int orderNumber, DatabaseOperations dbOps) {
         this.connection = connection;
         this.orderNumber = orderNumber;
-
+        this.dbOps = dbOps;
+    
         initialiseComponents();
         loadOrderLines();
     }
+    
 
     private void initialiseComponents() {
         setTitle("Edit Order Lines");
@@ -35,20 +40,24 @@ public class OrderLineEditView extends JFrame {
         JPanel buttonPanel = new JPanel();
         saveButton = new JButton("Save Changes");
         deleteButton = new JButton("Delete Selected Line");
+        exitButton = new JButton("Exit");
 
         buttonPanel.add(saveButton);
         buttonPanel.add(deleteButton);
+        buttonPanel.add(exitButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         saveButton.addActionListener(e -> saveChanges());
         deleteButton.addActionListener(e -> deleteSelectedOrderLine());
+        exitButton.addActionListener(e -> exitEdit());
     }
 
     private void loadOrderLines() {
-        DefaultTableModel model = new DefaultTableModel(new String[]{"Line Number", "Product Code", "Quantity", "Line Cost"}, 0) {
+        DefaultTableModel model = new DefaultTableModel(
+                new String[] { "Line Number", "Product Code", "Quantity", "Line Cost" }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 2; // 仅允许编辑数量列
+                return column == 2;
             }
         };
 
@@ -58,11 +67,11 @@ public class OrderLineEditView extends JFrame {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("order_line_number"),
-                    rs.getString("product_code"),
-                    rs.getInt("product_num"),
-                    rs.getBigDecimal("line_cost")
+                model.addRow(new Object[] {
+                        rs.getInt("order_line_number"),
+                        rs.getString("product_code"),
+                        rs.getInt("product_num"),
+                        rs.getBigDecimal("line_cost")
                 });
             }
 
@@ -78,17 +87,11 @@ public class OrderLineEditView extends JFrame {
         int rowCount = model.getRowCount();
 
         for (int i = 0; i < rowCount; i++) {
-            int orderLineNumber = (Integer) model.getValueAt(i, 0);
-            int newQuantity = (Integer) model.getValueAt(i, 2);
+            int orderLineNumber = Integer.parseInt(model.getValueAt(i, 0).toString());
+            int newQuantity = Integer.parseInt(model.getValueAt(i, 2).toString());
 
             try {
-                String sql = "UPDATE order_line SET product_num = ? WHERE order_number = ? AND order_line_number = ?";
-                PreparedStatement pstmt = connection.prepareStatement(sql);
-
-                pstmt.setInt(1, newQuantity);
-                pstmt.setInt(2, orderNumber);
-                pstmt.setInt(3, orderLineNumber);
-                pstmt.executeUpdate();
+                dbOps.updateProductNum(orderNumber, orderLineNumber, newQuantity, connection);
             } catch (SQLException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error updating order line.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -107,16 +110,16 @@ public class OrderLineEditView extends JFrame {
         int orderLineNumber = (Integer) orderLinesTable.getValueAt(selectedRow, 0);
 
         try {
-            String sql = "DELETE FROM order_line WHERE order_number = ? AND order_line_number = ?";
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-
-            pstmt.setInt(1, orderNumber);
-            pstmt.setInt(2, orderLineNumber);
-            pstmt.executeUpdate();
+            dbOps.deleteOrderLine(orderNumber, orderLineNumber, connection);
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error deleting order line.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         loadOrderLines();
     }
+
+    private void exitEdit() {
+        this.dispose();
+    }
+    
 }
