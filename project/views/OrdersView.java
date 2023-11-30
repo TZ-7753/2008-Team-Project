@@ -116,7 +116,7 @@ public class OrdersView extends JFrame {
 
         payButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                processPayment(connection);
+                processPayment(connection, userId, userRole);
             }
         });
 
@@ -256,7 +256,7 @@ public class OrdersView extends JFrame {
         
     }
 
-    private void processPayment(Connection connection) {
+    private void processPayment(Connection connection, String userID, String userRole) {
         int selectedRow = ordersTable.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "No order selected!");
@@ -264,8 +264,17 @@ public class OrdersView extends JFrame {
         }
 
         int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
+        String cardId = dbOps.userHasBankDetails(connection, currentUserId);
+        if(cardId == null){
+            try{
+                AddBankDetailsView addBankDetailsView = new AddBankDetailsView(connection, userID, userRole);
+                addBankDetailsView.setVisible(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            
+        }
         try {
-            String cardId = dbOps.userHasBankDetails(connection, currentUserId);
             if (cardId != null) {
                 dbOps.updateOrderStatus(orderNumber, "Confirmed", connection);
                 JOptionPane.showMessageDialog(this, "Payment successful!");

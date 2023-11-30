@@ -228,7 +228,6 @@ public class UserAccountView extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e){
                     try{
-                        dispose();
                         AddBankDetailsView addBankDetails = new AddBankDetailsView(connection, userID, userRole);
                         addBankDetails.setVisible(true);
                     } catch (SQLException error) {
