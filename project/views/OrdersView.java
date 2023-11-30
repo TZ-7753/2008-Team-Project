@@ -162,6 +162,10 @@ public class OrdersView extends JFrame {
             e.printStackTrace();
         }
     }
+    boolean isPending = "Pending".equals(status);
+    deleteButton.setEnabled(isPending);
+    editButton.setEnabled(isPending);
+    deleteOrderLineButton.setEnabled(isPending);
 }
 
 
@@ -197,10 +201,12 @@ public class OrdersView extends JFrame {
             JOptionPane.showMessageDialog(this, "No order selected!");
             return;
         }
-
+    
         int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
-        displayOrderLines(orderNumber, connection);
+        OrderLineEditView orderLineEditView = new OrderLineEditView(connection, orderNumber);
+        orderLineEditView.setVisible(true);
     }
+    
 
     private void displayOrderLines(int orderNumber, Connection connection) {
         try {
