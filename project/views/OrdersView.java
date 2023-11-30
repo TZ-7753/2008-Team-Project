@@ -9,6 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
+
+import com.mysql.cj.protocol.a.SqlDateValueEncoder;
+
 import java.util.Date;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -168,6 +171,7 @@ public class OrdersView extends JFrame {
         deleteButton.setEnabled(isPending);
         editButton.setEnabled(isPending);
         deleteOrderLineButton.setEnabled(isPending);
+        payButton.setEnabled(isPending);
     }
 
     private void deleteSelectedOrders(Connection connection) {
@@ -270,6 +274,7 @@ public class OrdersView extends JFrame {
         }
 
         int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
+
         String cardId = dbOps.userHasBankDetails(connection, currentUserId);
         if (cardId == null) {
             try {
@@ -278,18 +283,22 @@ public class OrdersView extends JFrame {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
-        }
-        try {
-            if (cardId != null) {
-                dbOps.updateOrderStatus(orderNumber, "Confirmed", connection);
-                JOptionPane.showMessageDialog(this, "Payment successful!");
-            } else {
-                JOptionPane.showMessageDialog(this, "No bank details found!");
+            cardId = dbOps.userHasBankDetails(connection, currentUserId);
+        } else {
+            try {
+                if (cardId != null) {
+                    dbOps.updateOrderStatus(orderNumber, "Confirmed", connection);
+                    JOptionPane.showMessageDialog(this, "Payment Success");
+                    dispose();
+                    OrdersView ordersView = new OrdersView(connection, userID, userRole);
+                    ordersView.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "No bank details found!");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error occurred during payment process.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error occurred during payment process.");
         }
     }
 
