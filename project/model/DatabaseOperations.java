@@ -337,14 +337,63 @@ public class DatabaseOperations {
     }
 
     public void updateProductNum(int orderNumber, int orderLineNumber, int productNum, Connection connection) throws SQLException {
-        BigDecimal current_cost = new BigDecimal(0);
-        String query = "UPDATE order_line SET product_num = ? WHERE order_number = ? AND order_line_number = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, productNum);
-            pstmt.setInt(2, orderNumber);
-            pstmt.setInt(3, orderLineNumber);
-            pstmt.executeUpdate();
+        int current_num = 0;
+        String productCode = null;
+        try {
+            String selectSQL = "SELECT product_num, product_code FROM order_line WHERE order_number = ? AND order_line_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setInt(1, orderNumber);
+            preparedStatement.setInt(2, orderLineNumber);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                current_num = resultSet.getInt("product_num");
+                productCode = resultSet.getString("product_code");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
+        BigDecimal productPrice = new BigDecimal(0);
+        try {
+            String selectSQL = "SELECT retail_price FROM product WHERE product_code=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setString(1, productCode);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                productPrice = resultSet.getBigDecimal("retail_price");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        int diff = productNum - current_num;
+
+        try {
+            String updateSQL = "UPDATE order_line SET product_num = ?, line_cost = ? WHERE order_number = ? AND order_line_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(updateSQL);
+            preparedStatement.setInt(1,productNum);
+            preparedStatement.setBigDecimal(2, productPrice.multiply(new BigDecimal(productNum)));
+            preparedStatement.setInt(3, orderNumber);
+            preparedStatement.setInt(4, orderLineNumber);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String updateSQL = "UPDATE orders SET totalCost = totalCost + ? WHERE order_number = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(updateSQL);
+            preparedStatement.setInt(2, orderNumber);
+            preparedStatement.setBigDecimal(1, productPrice.multiply(new BigDecimal(diff)));
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+
+
     }
 
     public void updateOrderStatus(int orderNumber, String status, Connection connection) throws SQLException {
