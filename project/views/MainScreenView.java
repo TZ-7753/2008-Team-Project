@@ -174,9 +174,9 @@ public class MainScreenView extends JFrame {
         orderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                MainScreenView.this.dispose();
-                OrdersView ov = new OrdersView(connection, userID, userRole);
-                ov.setVisible(true);
+                dispose();
+                OrdersView ordersView = new OrdersView(connection,userID,userRole);
+                ordersView.setVisible(true);
             }
         });
         
