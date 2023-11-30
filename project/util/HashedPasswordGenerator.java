@@ -21,7 +21,6 @@ public class HashedPasswordGenerator {
             for (byte b : hashedPasswordBytes) {
                 hexStringBuilder.append(String.format("%02x", b));
             }
-            System.out.println(hexStringBuilder.toString());
             return hexStringBuilder.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
