@@ -27,6 +27,7 @@ public class OrdersView extends JFrame {
     private JButton homeButton;
     private String currentUserId;
     private String currentUserRole;
+    private Container contentPane = getContentPane();
 
     public OrdersView(Connection connection, String userId, String userRole) {
         this.currentUserId = userId;
@@ -130,7 +131,7 @@ public class OrdersView extends JFrame {
 
     // methods
 
-    private void displayOrders(String status, Connection connection) {
+    public void displayOrders(String status, Connection connection) {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
@@ -204,7 +205,7 @@ public class OrdersView extends JFrame {
         }
 
         int orderNumber = (int) ordersTable.getValueAt(selectedRow, 0);
-        OrderLineEditView orderLineEditView = new OrderLineEditView(connection, orderNumber, this.dbOps);
+        OrderLineEditView orderLineEditView = new OrderLineEditView(connection, orderNumber, this.dbOps, this);
         orderLineEditView.setVisible(true);
 
     }

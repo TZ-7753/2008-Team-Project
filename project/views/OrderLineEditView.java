@@ -18,11 +18,13 @@ public class OrderLineEditView extends JFrame {
     private Connection connection;
     private DatabaseOperations dbOps;
     private JButton exitButton;
+    private OrdersView ovw;
 
-    public OrderLineEditView(Connection connection, int orderNumber, DatabaseOperations dbOps) {
+    public OrderLineEditView(Connection connection, int orderNumber, DatabaseOperations dbOps, OrdersView ov) {
         this.connection = connection;
         this.orderNumber = orderNumber;
         this.dbOps = dbOps;
+        ovw = ov;
     
         initialiseComponents();
         loadOrderLines();
@@ -98,6 +100,7 @@ public class OrderLineEditView extends JFrame {
             }
         }
         loadOrderLines();
+        ovw.displayOrders("Pending", connection);
     }
 
     private void deleteSelectedOrderLine() {
